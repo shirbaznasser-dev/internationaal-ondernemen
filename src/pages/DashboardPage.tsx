@@ -80,7 +80,7 @@ export default function DashboardPage() {
 
       <main className="max-w-5xl mx-auto px-6 py-8">
         {/* Voortgang samenvatting */}
-        <div className="bg-[#1e293b] rounded-2xl p-6 mb-8 flex items-center justify-between">
+        <div className="bg-[#1e293b] rounded-2xl p-6 mb-8 flex items-center justify-between cursor-default select-none">
           <div>
             <h2 className="text-2xl font-bold text-white mb-1">Jouw voortgang</h2>
             <p className="text-slate-400">
