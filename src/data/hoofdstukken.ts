@@ -1,0 +1,67 @@
+import type { Hoofdstuk } from '../types'
+
+export const HOOFDSTUKKEN: Hoofdstuk[] = [
+  {
+    id: '1',
+    titel: 'Handelstheorieën',
+    beschrijving: 'Mercantilisme, Smith, Ricardo, HOS, Vraag & Aanbod',
+    concepten: [
+      { id: 'mercantilisme', naam: 'Mercantilisme' },
+      { id: 'absolute_voordelen', naam: 'Absolute Voordelen (Adam Smith)' },
+      { id: 'comparatieve_voordelen', naam: 'Comparatieve Voordelen (Ricardo)' },
+      { id: 'heckscher_ohlin', naam: 'Heckscher-Ohlin Theorema' },
+      { id: 'vraag_aanbod_internationaal', naam: 'Vraag & Aanbod op internationale markten' },
+      { id: 'consumentensurplus', naam: 'Consumentensurplus' },
+      { id: 'producentensurplus', naam: 'Producentensurplus' },
+      { id: 'factormobiliteit', naam: 'Factormobiliteit' },
+    ],
+  },
+  {
+    id: '2',
+    titel: 'Handelspolitiek & Protectionisme',
+    beschrijving: 'Heffingen, Quota, Exportsubsidies, WTO, Dumping',
+    concepten: [
+      { id: 'heffingen_soorten', naam: 'Soorten Invoerheffingen' },
+      { id: 'herkomst_vs_oorsprong', naam: 'Herkomst vs. Oorsprong van goederen' },
+      { id: 'invoerquota', naam: 'Invoerquota' },
+      { id: 'vrijwillige_exportbeperking', naam: 'Vrijwillige Exportbeperking (VER)' },
+      { id: 'niet_tarifaire_belemmeringen', naam: 'Niet-tarifaire Handelsbelemmeringen' },
+      { id: 'exportsubsidies', naam: 'Exportsubsidies' },
+      { id: 'dumping', naam: 'Dumping' },
+      { id: 'protectionisme_argumenten', naam: 'Argumenten voor Protectionisme' },
+      { id: 'wto_positie', naam: 'WTO en vrijhandel' },
+    ],
+  },
+  {
+    id: '3',
+    titel: 'Globalisering',
+    beschrijving: 'Globaal vs multinationaal, DBI, Milieu, Andersglobalisten',
+    concepten: [
+      { id: 'globaal_vs_multinationaal', naam: 'Globaal vs. Multinationaal ondernemen' },
+      { id: 'vier_dimensies_globalisering', naam: 'Vier dimensies van globalisering' },
+      { id: 'dbi_flux_stock', naam: 'Directe Buitenlandse Investeringen (flux & stock)' },
+      { id: 'globalisering_nadelen', naam: 'Nadelen van globalisering' },
+      { id: 'transfer_pricing', naam: 'Transfer Pricing' },
+      { id: 'milieu_vrijhandel', naam: 'Milieu en vrijhandel' },
+      { id: 'andersglobalisten', naam: 'Andersglobalisten' },
+      { id: 'ontwikkelingslanden_opties', naam: 'Opties voor ontwikkelingslanden' },
+    ],
+  },
+  {
+    id: '4',
+    titel: 'Financiële Markten & Wisselkoersen',
+    beschrijving: 'Kapitaalmarkt, Wisselmarkt, Ruilvoet, Betalingsbalans',
+    concepten: [
+      { id: 'aandelenmarkt', naam: 'Aandelenmarkt' },
+      { id: 'obligatiemarkt', naam: 'Obligatiemarkt' },
+      { id: 'wisselmarkt_werking', naam: 'Werking van de wisselmarkt' },
+      { id: 'wisselkoersrisico', naam: 'Wisselkoersrisico' },
+      { id: 'termijnmarkt', naam: 'Termijnmarkt en afdekking' },
+      { id: 'swap_transacties', naam: 'Swap-transacties' },
+      { id: 'ruilvoet', naam: 'Ruilvoet (Terms of Trade)' },
+      { id: 'betalingsbalans', naam: 'Betalingsbalans' },
+      { id: 'wisselkoerssystemen', naam: 'Wisselkoerssystemen' },
+      { id: 'imf_wereldbank_g20', naam: 'IMF, Wereldbank en G20' },
+    ],
+  },
+]
