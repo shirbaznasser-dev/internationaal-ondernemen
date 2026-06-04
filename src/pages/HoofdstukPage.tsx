@@ -9,17 +9,8 @@ import type { Concept } from '../types'
 
 type Stap = 'uitleg' | 'vraag' | 'feedback'
 
-function BronLabel({ bron }: { bron: BronIndicator | null }) {
-  if (!bron) return null
-  return bron === 'cache' ? (
-    <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-400 bg-amber-400/10 border border-amber-400/20 rounded-full px-3 py-1">
-      ⚡ Uit cache
-    </span>
-  ) : (
-    <span className="inline-flex items-center gap-1 text-xs font-medium text-blue-400 bg-blue-400/10 border border-blue-400/20 rounded-full px-3 py-1">
-      🤖 Nieuw gegenereerd
-    </span>
-  )
+function BronLabel(_: { bron: BronIndicator | null }) {
+  return null
 }
 
 function LaadSkeleton({ label }: { label: string }) {
