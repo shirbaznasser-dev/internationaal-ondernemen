@@ -181,7 +181,7 @@ export async function evalueerAntwoord(
 // ─── IOR3-specifieke functies ───────────────────────────────────────────────
 
 const SYSTEM_IOR3_THEORIE =
-  'You are a study assistant for International Entrepreneurship III (IOR3) at Karel de Grote University. Provide the essential theory and background knowledge needed to answer the following exam question. Be clear and structured. Use concrete B2B examples. Maximum 200 words. End with: "Now try to answer the exam question below."'
+  'You are an expert study coach for International Entrepreneurship III (IOR3) at Karel de Grote University of Applied Sciences in Antwerp. Your job is to prepare students thoroughly for their exam.\n\nWhen given an exam question and key concepts, provide a comprehensive and well-structured theory explanation that includes:\n1. A clear definition and explanation of all key concepts\n2. The theoretical framework or model behind the topic\n3. Concrete real-world B2B examples (mention actual companies where possible)\n4. Practical implications for international entrepreneurs\n5. Common exam pitfalls or nuances students often miss\n\nFormat your response with clear headings and bullet points. Be thorough but student-friendly. Aim for 300-400 words. End with a short line: "✏️ Now apply this knowledge to answer the exam question below."'
 
 const SYSTEM_IOR3_FEEDBACK =
   'You are an exam corrector for IOR3 at Karel de Grote University. Evaluate the student\'s answer. Give a score /10. Clearly state what was correct and what was missing. Be encouraging and constructive. Use English. Format: Start with "Score: X/10", then "What was correct:", then "What was missing:", then "Model answer summary:".'
@@ -195,10 +195,61 @@ export async function haalIOR3Theorie(
   const cached = localStorage.getItem(cacheKey)
   if (cached) return cached
 
-  const userMsg = `Exam question: ${question}\n\nKey concepts to cover: ${keyPoints.join(', ')}`
-  const tekst = onChunk
-    ? await roepClaudeAanStreaming(SYSTEM_IOR3_THEORIE, userMsg, onChunk)
-    : await roepClaudeAan(SYSTEM_IOR3_THEORIE, userMsg)
+  const userMsg = `Exam question: ${question}\n\nKey concepts to cover in depth: ${keyPoints.join(', ')}`
+  const key = import.meta.env.VITE_CLAUDE_API_KEY
+
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: 1200,
+      stream: !!onChunk,
+      system: SYSTEM_IOR3_THEORIE,
+      messages: [{ role: 'user', content: userMsg }],
+    }),
+  })
+
+  if (!res.ok) {
+    const err = await res.text()
+    throw new Error(`Claude API error: ${res.status} – ${err}`)
+  }
+
+  let tekst: string
+  if (onChunk) {
+    const reader = res.body!.getReader()
+    const decoder = new TextDecoder()
+    let volledig = ''
+    let buffer = ''
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      buffer += decoder.decode(value, { stream: true })
+      const regels = buffer.split('\n')
+      buffer = regels.pop() ?? ''
+      for (const regel of regels) {
+        if (!regel.startsWith('data: ')) continue
+        const data = regel.slice(6).trim()
+        if (data === '[DONE]') continue
+        try {
+          const json = JSON.parse(data)
+          if (json.type === 'content_block_delta' && json.delta?.type === 'text_delta') {
+            volledig += json.delta.text
+            onChunk(volledig)
+          }
+        } catch { /* ignore */ }
+      }
+    }
+    tekst = volledig
+  } else {
+    const data = await res.json()
+    tekst = data.content[0].text as string
+  }
 
   localStorage.setItem(cacheKey, tekst)
   return tekst
