@@ -2,12 +2,13 @@ import { useNavigate } from 'react-router-dom'
 import { getHuidigeGebruiker, logout } from '../utils/auth'
 import { HOOFDSTUKKEN } from '../data/hoofdstukken'
 
-const ICONEN = ['📚', '🛡️', '🌍', '💰']
+const ICONEN = ['📚', '🛡️', '🌍', '💰', '📝']
 const KLEUREN = [
   'from-blue-600 to-blue-800',
   'from-purple-600 to-purple-800',
   'from-emerald-600 to-emerald-800',
   'from-orange-600 to-orange-800',
+  'from-rose-600 to-rose-800',
 ]
 
 export default function DashboardPage() {
@@ -108,12 +109,14 @@ export default function DashboardPage() {
                 onClick={() => navigate(`/hoofdstuk/${h.id}`)}
                 className="bg-[#1e293b] rounded-2xl p-8 text-left hover:ring-2 hover:ring-[#3b82f6] transition-all group"
               >
-                <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br ${KLEUREN[i]} mb-5 text-3xl`}>
-                  {ICONEN[i]}
+                <div className="flex items-center gap-4 mb-5">
+                  <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br ${KLEUREN[i]} text-3xl shrink-0`}>
+                    {ICONEN[i]}
+                  </div>
+                  <p className="text-white text-2xl font-bold">
+                    Hoofdstuk {i + 1}
+                  </p>
                 </div>
-                <p className="text-slate-500 text-xs font-medium uppercase tracking-wider mb-1">
-                  Hoofdstuk {i + 1}
-                </p>
                 <h3 className="text-white font-bold text-xl mb-2 group-hover:text-[#3b82f6] transition-colors">
                   {h.titel}
                 </h3>

@@ -109,7 +109,7 @@ export default function HoofdstukPage() {
     setUitleg('')
     setUitlegBron(null)
     try {
-      const { tekst, bron } = await haalUitleg(concept.naam)
+      const { tekst, bron } = await haalUitleg(concept.naam, concept.modelantwoord)
       setUitleg(tekst)
       setUitlegBron(bron)
     } catch {

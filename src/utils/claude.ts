@@ -43,6 +43,9 @@ export type BronIndicator = 'cache' | 'nieuw'
 const SYSTEM_UITLEG =
   "Je bent een leerhulp voor Internationaal Ondernemen IOR2 aan KdG. Leg concepten uit in helder Nederlands met concrete voorbeelden. Gebruik korte alinea's. Max 200 woorden."
 
+const SYSTEM_EXAMEN =
+  "Je bent een examenbegeleider voor Internationaal Ondernemen IOR2 aan KdG. Je toont de examenvraag en daarna het officiële modelantwoord. Formatteer duidelijk met **Examenvraag:** en **Modelantwoord:** als koppen. Voeg geen extra uitleg toe buiten het modelantwoord."
+
 const SYSTEM_VRAAG =
   'Je bent een examenvraag-generator voor Internationaal Ondernemen IOR2. Genereer ALLEEN de vraag, geen antwoord. Wissel af tussen: begrip uitleggen, juist/fout met redenering, open redenering, kleine casus.'
 
@@ -50,14 +53,24 @@ const SYSTEM_FEEDBACK =
   'Je bent een eerlijke maar motiverende examencorrector voor Internationaal Ondernemen IOR2. Geef score /10, zeg wat goed was, wat ontbrak, en geef het correcte antwoord. Formaat: begin met "Score: X/10", dan "Wat goed was:", dan "Wat ontbrak:", dan "Correct antwoord:".'
 
 export async function haalUitleg(
-  conceptNaam: string
+  conceptNaam: string,
+  modelantwoord?: string
 ): Promise<{ tekst: string; bron: BronIndicator }> {
   const cached = leesUitCache('uitleg', conceptNaam)
   if (cached) return { tekst: cached, bron: 'cache' }
-  const tekst = await roepClaudeAan(
-    SYSTEM_UITLEG,
-    `Leg het concept '${conceptNaam}' uit voor een hogeschoolstudent. Geef ook een concreet voorbeeld uit de praktijk.`
-  )
+
+  let tekst: string
+  if (modelantwoord) {
+    tekst = await roepClaudeAan(
+      SYSTEM_EXAMEN,
+      `Examenvraag over '${conceptNaam}'.\n\nModelantwoord:\n${modelantwoord}\n\nToon dit netjes geformatteerd als examenoverzicht.`
+    )
+  } else {
+    tekst = await roepClaudeAan(
+      SYSTEM_UITLEG,
+      `Leg het concept '${conceptNaam}' uit voor een hogeschoolstudent. Geef ook een concreet voorbeeld uit de praktijk.`
+    )
+  }
   schrijfNaarCache('uitleg', conceptNaam, tekst)
   return { tekst, bron: 'nieuw' }
 }

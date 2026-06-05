@@ -13,6 +13,7 @@ export interface ConceptVoortgang {
 export interface Concept {
   id: string
   naam: string
+  modelantwoord?: string
 }
 
 export interface Hoofdstuk {
