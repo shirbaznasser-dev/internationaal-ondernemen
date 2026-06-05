@@ -111,7 +111,10 @@ export default function HoofdstukPage() {
     setUitleg('')
     setUitlegBron(null)
     try {
-      const { tekst, bron } = await haalUitleg(concept.naam, vak, concept.modelantwoord)
+      const { tekst, bron } = await haalUitleg(
+        concept.naam, vak, concept.modelantwoord,
+        (stuk) => { setUitleg(stuk); setLaden(false) }
+      )
       setUitleg(tekst)
       setUitlegBron(bron)
     } catch {
@@ -134,7 +137,10 @@ export default function HoofdstukPage() {
     setVraagBron(null)
     setAntwoord('')
     try {
-      const { tekst, bron } = await genereerVraag(huidigConcept.naam, vak)
+      const { tekst, bron } = await genereerVraag(
+        huidigConcept.naam, vak,
+        (stuk) => { setVraag(stuk); setLaden(false) }
+      )
       setVraag(tekst)
       setVraagBron(bron)
     } catch {
@@ -265,7 +271,7 @@ export default function HoofdstukPage() {
         {laden && stap === 'feedback' && <LaadSkeleton label="Antwoord evalueren..." />}
 
         {/* STAP 1: UITLEG */}
-        {!laden && stap === 'uitleg' && uitleg && (
+        {stap === 'uitleg' && uitleg && (
           <div className="glass rounded-3xl p-6 fade-in">
             <div className="flex items-center gap-2 mb-4">
               <span className="text-lg">📖</span>
@@ -283,7 +289,7 @@ export default function HoofdstukPage() {
         )}
 
         {/* STAP 2: VRAAG */}
-        {!laden && stap === 'vraag' && vraag && (
+        {stap === 'vraag' && vraag && (
           <div className="glass rounded-3xl p-6 fade-in">
             <div className="flex items-center gap-2 mb-4">
               <span className="text-lg">✏️</span>

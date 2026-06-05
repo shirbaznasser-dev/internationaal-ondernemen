@@ -3,6 +3,64 @@ import type { VakId } from '../types'
 const API_URL = 'https://api.anthropic.com/v1/messages'
 const MODEL = 'claude-haiku-4-5-20251001'
 
+// Streaming versie — roept onChunk aan voor elk stukje tekst
+export async function roepClaudeAanStreaming(
+  system: string,
+  user: string,
+  onChunk: (tekst: string) => void
+): Promise<string> {
+  const key = import.meta.env.VITE_CLAUDE_API_KEY
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: 600,
+      stream: true,
+      system,
+      messages: [{ role: 'user', content: user }],
+    }),
+  })
+  if (!res.ok) {
+    const err = await res.text()
+    throw new Error(`Claude API fout: ${res.status} – ${err}`)
+  }
+
+  const reader = res.body!.getReader()
+  const decoder = new TextDecoder()
+  let volledigeTekst = ''
+  let buffer = ''
+
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+    buffer += decoder.decode(value, { stream: true })
+    const regels = buffer.split('\n')
+    buffer = regels.pop() ?? ''
+
+    for (const regel of regels) {
+      if (!regel.startsWith('data: ')) continue
+      const data = regel.slice(6).trim()
+      if (data === '[DONE]') continue
+      try {
+        const json = JSON.parse(data)
+        if (json.type === 'content_block_delta' && json.delta?.type === 'text_delta') {
+          const stuk = json.delta.text as string
+          volledigeTekst += stuk
+          onChunk(volledigeTekst)
+        }
+      } catch { /* negeer parse-fouten */ }
+    }
+  }
+  return volledigeTekst
+}
+
+// Niet-streaming fallback voor evaluatie
 async function roepClaudeAan(system: string, user: string): Promise<string> {
   const key = import.meta.env.VITE_CLAUDE_API_KEY
   const res = await fetch(API_URL, {
@@ -68,39 +126,41 @@ const SYSTEM_FEEDBACK_IOR3 =
 export async function haalUitleg(
   conceptNaam: string,
   vak: VakId = 'ior2',
-  modelantwoord?: string
+  modelantwoord?: string,
+  onChunk?: (tekst: string) => void
 ): Promise<{ tekst: string; bron: BronIndicator }> {
   const cached = leesUitCache('uitleg', conceptNaam, vak)
   if (cached) return { tekst: cached, bron: 'cache' }
 
-  let tekst: string
+  let system: string, userMsg: string
   if (modelantwoord) {
-    tekst = await roepClaudeAan(
-      SYSTEM_EXAMEN,
-      `Examenvraag over '${conceptNaam}'.\n\nModelantwoord:\n${modelantwoord}\n\nToon dit netjes geformatteerd als examenoverzicht.`
-    )
+    system = SYSTEM_EXAMEN
+    userMsg = `Examenvraag over '${conceptNaam}'.\n\nModelantwoord:\n${modelantwoord}\n\nToon dit netjes geformatteerd als examenoverzicht.`
   } else {
-    const systemPrompt = vak === 'ior3' ? SYSTEM_UITLEG_IOR3 : SYSTEM_UITLEG_IOR2
-    tekst = await roepClaudeAan(
-      systemPrompt,
-      `Leg het concept '${conceptNaam}' uit voor een hogeschoolstudent. Geef ook een concreet voorbeeld uit de praktijk.`
-    )
+    system = vak === 'ior3' ? SYSTEM_UITLEG_IOR3 : SYSTEM_UITLEG_IOR2
+    userMsg = `Leg het concept '${conceptNaam}' uit voor een hogeschoolstudent. Geef ook een concreet voorbeeld uit de praktijk.`
   }
+
+  const tekst = onChunk
+    ? await roepClaudeAanStreaming(system, userMsg, onChunk)
+    : await roepClaudeAan(system, userMsg)
+
   schrijfNaarCache('uitleg', conceptNaam, vak, tekst)
   return { tekst, bron: 'nieuw' }
 }
 
 export async function genereerVraag(
   conceptNaam: string,
-  vak: VakId = 'ior2'
+  vak: VakId = 'ior2',
+  onChunk?: (tekst: string) => void
 ): Promise<{ tekst: string; bron: BronIndicator }> {
   const cached = leesUitCache('vraag', conceptNaam, vak)
   if (cached) return { tekst: cached, bron: 'cache' }
-  const systemPrompt = vak === 'ior3' ? SYSTEM_VRAAG_IOR3 : SYSTEM_VRAAG_IOR2
-  const tekst = await roepClaudeAan(
-    systemPrompt,
-    `Genereer een examenvraag over '${conceptNaam}'. Niveau: hogeschool bachelor.`
-  )
+  const system = vak === 'ior3' ? SYSTEM_VRAAG_IOR3 : SYSTEM_VRAAG_IOR2
+  const userMsg = `Genereer een examenvraag over '${conceptNaam}'. Niveau: hogeschool bachelor.`
+  const tekst = onChunk
+    ? await roepClaudeAanStreaming(system, userMsg, onChunk)
+    : await roepClaudeAan(system, userMsg)
   schrijfNaarCache('vraag', conceptNaam, vak, tekst)
   return { tekst, bron: 'nieuw' }
 }
