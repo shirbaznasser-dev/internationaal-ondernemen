@@ -16,6 +16,19 @@ body {
   min-height: 100vh;
 }
 
+/* Alleen interactieve elementen zijn klikbaar */
+* {
+  cursor: default;
+  user-select: none;
+}
+input, textarea {
+  cursor: text;
+  user-select: text;
+}
+button, a, [role="button"] {
+  cursor: pointer;
+}
+
 /* Animated mesh background */
 .bg-mesh {
   background-color: #0a0f1e;
