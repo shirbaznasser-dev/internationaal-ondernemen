@@ -68,7 +68,7 @@ export default function DashboardPage() {
           <div className="flex items-center gap-3 cursor-default select-none">
             <span className="text-2xl">{isIOR3 ? '🚀' : '🌍'}</span>
             <div>
-              <h1 className="text-white font-bold">{isIOR3 ? 'IOR3 Leerapp' : 'IOR2 Leerapp'}</h1>
+              <h1 className="text-white font-bold">IOR AI Leerapp</h1>
               <p className="text-slate-400 text-xs">
                 {isIOR3 ? 'International Entrepreneurship III · KdG' : 'Internationaal Ondernemen · KdG'}
               </p>
