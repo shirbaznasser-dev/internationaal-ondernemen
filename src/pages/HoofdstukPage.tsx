@@ -2,10 +2,12 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { HOOFDSTUKKEN } from '../data/hoofdstukken'
 import { HOOFDSTUKKEN_IOR3 } from '../data/hoofdstukkenIOR3'
+import { ior3Chapters } from '../data/ior3Questions'
 import { haalUitleg, genereerVraag, evalueerAntwoord } from '../utils/claude'
 import type { BronIndicator } from '../utils/claude'
 import { getHuidigeGebruiker, getHuidigVak, updateVoortgang } from '../utils/auth'
 import MarkdownContent from '../components/MarkdownContent'
+import IOR3LeerFlow from '../components/IOR3LeerFlow'
 import type { Concept } from '../types'
 
 type Stap = 'uitleg' | 'vraag' | 'feedback'
@@ -197,6 +199,81 @@ export default function HoofdstukPage() {
     )
   }
 
+  // ── IOR3: volledig andere leerflow ──────────────────────────────────────
+  if (vak === 'ior3') {
+    const ior3Chapter = ior3Chapters.find(c => c.id === id)
+    if (!ior3Chapter) return (
+      <div className="min-h-screen bg-mesh flex items-center justify-center">
+        <p className="text-white">Chapter not found.</p>
+      </div>
+    )
+    const questions = ior3Chapter.questions
+    const ior3Pct = Math.round(((conceptIndex + 1) / questions.length) * 100)
+    const huidigQuestion = questions[conceptIndex]
+
+    function volgendeQuestion() {
+      if (conceptIndex + 1 >= questions.length) navigate('/dashboard')
+      else setConceptIndex(i => i + 1)
+    }
+
+    return (
+      <div className="min-h-screen bg-mesh">
+        <header className="glass-strong border-b border-white/5 sticky top-0 z-10">
+          <div className="max-w-3xl mx-auto px-6 py-3 flex items-center justify-between">
+            <button onClick={() => navigate('/dashboard')} className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm border border-slate-700 hover:border-slate-500 rounded-lg px-3 py-1.5">
+              ← Dashboard
+            </button>
+            <div className="text-center">
+              <p className="text-white font-semibold text-sm">{ior3Chapter.title}</p>
+              <p className="text-slate-500 text-xs">Question {conceptIndex + 1} of {questions.length}</p>
+            </div>
+            <span className="font-bold text-sm" style={{ color: accent }}>{ior3Pct}%</span>
+          </div>
+          <div className="w-full bg-slate-800 h-0.5">
+            <div className="bg-gradient-to-r from-violet-500 to-purple-600 h-0.5 transition-all duration-500" style={{ width: `${ior3Pct}%` }} />
+          </div>
+        </header>
+
+        <main className="max-w-3xl mx-auto px-6 py-8">
+          <h2 className="text-xl font-bold text-white mb-6 fade-in">
+            Q{conceptIndex + 1}. {huidigQuestion.question.length > 80
+              ? huidigQuestion.question.slice(0, 77) + '...'
+              : huidigQuestion.question}
+          </h2>
+          <IOR3LeerFlow
+            key={huidigQuestion.id}
+            question={huidigQuestion}
+            totalQuestions={questions.length}
+            onVolgende={volgendeQuestion}
+            isLaatste={conceptIndex + 1 >= questions.length}
+          />
+
+          {/* Question overview */}
+          <div className="mt-5 glass rounded-2xl p-4">
+            <p className="text-slate-500 text-xs mb-3">All questions</p>
+            <div className="flex flex-wrap gap-2">
+              {questions.map((q, i) => {
+                const voortgangBron = gebruiker?.voortgangIOR3 ?? {}
+                const gedaan = voortgangBron[q.id]?.voltooid
+                return (
+                  <div key={q.id} className="px-3 py-1 rounded-lg text-xs font-medium"
+                    style={i === conceptIndex
+                      ? { backgroundColor: '#7c3aed', color: 'white' }
+                      : gedaan
+                      ? { backgroundColor: 'rgba(16,185,129,0.15)', color: '#34d399' }
+                      : { backgroundColor: 'rgba(30,41,59,0.8)', color: '#64748b' }}>
+                    Q{i + 1}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </main>
+      </div>
+    )
+  }
+  // ── Einde IOR3 ──────────────────────────────────────────────────────────
+
   const voortgangPct = Math.round(
     ((conceptIndex + (stap === 'feedback' ? 1 : 0)) / hoofdstuk.concepten.length) * 100
   )
@@ -349,8 +426,7 @@ export default function HoofdstukPage() {
           <p className="text-slate-400 text-xs mb-3">Alle concepten</p>
           <div className="flex flex-wrap gap-2">
             {hoofdstuk.concepten.map((c, i) => {
-              const voortgangBron = vak === 'ior3' ? gebruiker?.voortgangIOR3 : gebruiker?.voortgang
-              const gedaan = voortgangBron?.[c.id]?.voltooid
+              const gedaan = gebruiker?.voortgang[c.id]?.voltooid
               return (
                 <div
                   key={c.id}

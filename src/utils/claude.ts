@@ -177,3 +177,42 @@ export async function evalueerAntwoord(
     `Concept: ${conceptNaam}\nVraag: ${vraag}\nAntwoord student: ${antwoord}\nEvalueer dit antwoord.`
   )
 }
+
+// ─── IOR3-specifieke functies ───────────────────────────────────────────────
+
+const SYSTEM_IOR3_THEORIE =
+  'You are a study assistant for International Entrepreneurship III (IOR3) at Karel de Grote University. Provide the essential theory and background knowledge needed to answer the following exam question. Be clear and structured. Use concrete B2B examples. Maximum 200 words. End with: "Now try to answer the exam question below."'
+
+const SYSTEM_IOR3_FEEDBACK =
+  'You are an exam corrector for IOR3 at Karel de Grote University. Evaluate the student\'s answer. Give a score /10. Clearly state what was correct and what was missing. Be encouraging and constructive. Use English. Format: Start with "Score: X/10", then "What was correct:", then "What was missing:", then "Model answer summary:".'
+
+export async function haalIOR3Theorie(
+  question: string,
+  keyPoints: string[],
+  onChunk?: (tekst: string) => void
+): Promise<string> {
+  const cacheKey = `cache_ior3_theorie_${question.slice(0, 40)}`
+  const cached = localStorage.getItem(cacheKey)
+  if (cached) return cached
+
+  const userMsg = `Exam question: ${question}\n\nKey concepts to cover: ${keyPoints.join(', ')}`
+  const tekst = onChunk
+    ? await roepClaudeAanStreaming(SYSTEM_IOR3_THEORIE, userMsg, onChunk)
+    : await roepClaudeAan(SYSTEM_IOR3_THEORIE, userMsg)
+
+  localStorage.setItem(cacheKey, tekst)
+  return tekst
+}
+
+export async function evalueerIOR3Antwoord(
+  question: string,
+  keyPoints: string[],
+  modelAnswer: string,
+  studentAnswer: string,
+  onChunk?: (tekst: string) => void
+): Promise<string> {
+  const userMsg = `Question: ${question}\n\nKey points that should be in the answer: ${keyPoints.join(', ')}\n\nModel answer for reference: ${modelAnswer}\n\nStudent answer: ${studentAnswer}\n\nEvaluate this answer.`
+  return onChunk
+    ? await roepClaudeAanStreaming(SYSTEM_IOR3_FEEDBACK, userMsg, onChunk)
+    : await roepClaudeAan(SYSTEM_IOR3_FEEDBACK, userMsg)
+}
