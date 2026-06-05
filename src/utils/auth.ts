@@ -47,7 +47,7 @@ export function getAlleGebruikers(): Gebruiker[] {
   if (!raw) return []
   try {
     const lijst = JSON.parse(raw) as Gebruiker[]
-    return lijst.map(g => ({ voortgangIOR3: {}, ...g }))
+    return lijst.map(g => ({ ...g, voortgangIOR3: g.voortgangIOR3 ?? {} }))
   } catch { return [] }
 }
 
