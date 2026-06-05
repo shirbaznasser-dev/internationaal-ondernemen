@@ -15,29 +15,29 @@ export default function LoginPage() {
     setLaden(true)
     const g = login(email, wachtwoord)
     setLaden(false)
-    if (!g) {
-      setFout('Ongeldig e-mailadres of wachtwoord.')
-      return
-    }
+    if (!g) { setFout('Ongeldig e-mailadres of wachtwoord.'); return }
     navigate(g.isAdmin ? '/admin' : '/vakkeuze')
   }
 
   return (
-    <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-mesh flex items-center justify-center p-4">
+      <div className="w-full max-w-md fade-in">
+
+        {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#3b82f6] mb-4">
-            <span className="text-2xl">🌍</span>
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-500 to-violet-600 mb-5 shadow-lg glow-blue">
+            <span className="text-4xl">🎓</span>
           </div>
-          <h1 className="text-3xl font-bold text-white">IOR AI Leerapp</h1>
-          <p className="text-slate-400 mt-2">Internationaal Ondernemen · KdG</p>
+          <h1 className="text-4xl font-bold text-white tracking-tight">IOR AI Leerapp</h1>
+          <p className="text-slate-400 mt-2 text-sm">Karel de Grote Hogeschool · Antwerpen</p>
         </div>
 
-        <div className="bg-[#1e293b] rounded-2xl p-8 shadow-xl">
-          <h2 className="text-xl font-semibold text-white mb-6">Inloggen</h2>
+        {/* Card */}
+        <div className="glass rounded-3xl p-8 shadow-2xl">
+          <h2 className="text-lg font-semibold text-white mb-6">Welkom terug</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
                 E-mailadres
               </label>
               <input
@@ -45,12 +45,12 @@ export default function LoginPage() {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                className="w-full bg-[#0f172a] border border-slate-600 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-[#3b82f6] transition-colors"
+                className="w-full bg-slate-900/60 border border-slate-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all placeholder-slate-600"
                 placeholder="naam@student.kdg.be"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
                 Wachtwoord
               </label>
               <input
@@ -58,7 +58,7 @@ export default function LoginPage() {
                 value={wachtwoord}
                 onChange={e => setWachtwoord(e.target.value)}
                 required
-                className="w-full bg-[#0f172a] border border-slate-600 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-[#3b82f6] transition-colors"
+                className="w-full bg-slate-900/60 border border-slate-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all placeholder-slate-600"
                 placeholder="••••••••"
               />
             </div>
@@ -72,18 +72,25 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={laden}
-              className="w-full bg-[#3b82f6] hover:bg-[#2563eb] disabled:opacity-50 text-white font-semibold rounded-xl py-3 transition-colors"
+              className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-violet-600 disabled:opacity-50 text-white font-semibold rounded-xl py-3.5 transition-all shadow-lg shadow-blue-500/20 mt-2"
             >
-              {laden ? 'Inloggen...' : 'Inloggen'}
+              {laden ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Inloggen...
+                </span>
+              ) : 'Inloggen →'}
             </button>
           </form>
 
-          <p className="text-center text-slate-400 text-sm mt-6">
-            Nog geen account?{' '}
-            <Link to="/register" className="text-[#3b82f6] hover:underline">
-              Registreer hier
-            </Link>
-          </p>
+          <div className="mt-6 pt-6 border-t border-slate-700/50 text-center">
+            <p className="text-slate-500 text-sm">
+              Nog geen account?{' '}
+              <Link to="/register" className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
+                Registreer hier
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>

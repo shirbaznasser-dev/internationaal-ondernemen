@@ -6,54 +6,28 @@ import type { Hoofdstuk } from '../types'
 
 const ICONEN_IOR2 = ['📚', '🛡️', '🌍', '💰', '📝']
 const ICONEN_IOR3 = ['🏭', '🔄', '💡', '🗺️', '👥']
-
-const KLEUREN_IOR2 = [
-  'from-blue-600 to-blue-800',
-  'from-purple-600 to-purple-800',
-  'from-emerald-600 to-emerald-800',
-  'from-orange-600 to-orange-800',
-  'from-rose-600 to-rose-800',
-]
-const KLEUREN_IOR3 = [
-  'from-violet-600 to-violet-800',
-  'from-teal-600 to-teal-800',
-  'from-amber-600 to-amber-800',
-  'from-red-600 to-red-800',
-  'from-cyan-600 to-cyan-800',
-]
+const KLEUREN_IOR2 = ['from-blue-500 to-cyan-500','from-purple-500 to-pink-500','from-emerald-500 to-teal-500','from-orange-500 to-amber-500','from-rose-500 to-pink-500']
+const KLEUREN_IOR3 = ['from-violet-500 to-purple-600','from-teal-500 to-cyan-500','from-amber-500 to-orange-500','from-red-500 to-rose-500','from-cyan-500 to-blue-500']
 
 export default function DashboardPage() {
   const navigate = useNavigate()
   const gebruiker = getHuidigeGebruiker()
   const vak = getHuidigVak()
-
   const isIOR3 = vak === 'ior3'
   const hoofdstukken: Hoofdstuk[] = isIOR3 ? HOOFDSTUKKEN_IOR3 : HOOFDSTUKKEN
   const ICONEN = isIOR3 ? ICONEN_IOR3 : ICONEN_IOR2
   const KLEUREN = isIOR3 ? KLEUREN_IOR3 : KLEUREN_IOR2
-  const accentKleur = isIOR3 ? '#7c3aed' : '#3b82f6'
+  const accent = isIOR3 ? '#7c3aed' : '#3b82f6'
+  const accentGradient = isIOR3 ? 'from-violet-500 to-purple-600' : 'from-blue-500 to-cyan-500'
   const voortgangData = isIOR3 ? (gebruiker?.voortgangIOR3 ?? {}) : (gebruiker?.voortgang ?? {})
 
-  function handleLogout() {
-    logout()
-    navigate('/')
-  }
-
-  function berekenVoortgang(hoofdstuk: Hoofdstuk): { voltooid: number; totaal: number; gemScore: number } {
-    let voltooid = 0
-    let totaalScore = 0
-    for (const c of hoofdstuk.concepten) {
+  function berekenVoortgang(h: Hoofdstuk) {
+    let voltooid = 0, totaalScore = 0
+    for (const c of h.concepten) {
       const v = voortgangData[c.id]
-      if (v?.voltooid) {
-        voltooid++
-        totaalScore += v.score
-      }
+      if (v?.voltooid) { voltooid++; totaalScore += v.score }
     }
-    return {
-      voltooid,
-      totaal: hoofdstuk.concepten.length,
-      gemScore: voltooid > 0 ? Math.round(totaalScore / voltooid) : 0,
-    }
+    return { voltooid, totaal: h.concepten.length, gemScore: voltooid > 0 ? Math.round(totaalScore / voltooid) : 0 }
   }
 
   const totaalVoltooid = hoofdstukken.reduce((acc, h) => acc + berekenVoortgang(h).voltooid, 0)
@@ -61,41 +35,32 @@ export default function DashboardPage() {
   const totaalPct = totaalConcepten > 0 ? Math.round((totaalVoltooid / totaalConcepten) * 100) : 0
 
   return (
-    <div className="min-h-screen bg-[#0f172a]">
+    <div className="min-h-screen bg-mesh">
       {/* Header */}
-      <header className="bg-[#1e293b] border-b border-slate-700">
+      <header className="glass-strong border-b border-white/5 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3 cursor-default select-none">
-            <span className="text-2xl">{isIOR3 ? '🚀' : '🌍'}</span>
+            <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${accentGradient} flex items-center justify-center text-lg`}>
+              {isIOR3 ? '🚀' : '🌍'}
+            </div>
             <div>
-              <h1 className="text-white font-bold">IOR AI Leerapp</h1>
-              <p className="text-slate-400 text-xs">
-                {isIOR3 ? 'International Entrepreneurship III · KdG' : 'Internationaal Ondernemen · KdG'}
-              </p>
+              <span className="text-white font-bold text-sm">IOR AI Leerapp</span>
+              <span className="ml-2 text-xs px-2 py-0.5 rounded-full font-bold" style={{ backgroundColor: `${accent}20`, color: accent }}>
+                {vak.toUpperCase()}
+              </span>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate('/vakkeuze')}
-              className="text-sm text-slate-400 hover:text-white transition-colors"
-            >
-              ← Wissel vak
+          <div className="flex items-center gap-3">
+            <button onClick={() => navigate('/vakkeuze')} className="text-xs text-slate-400 hover:text-white border border-slate-700 hover:border-slate-500 rounded-lg px-3 py-1.5 transition-all">
+              ⇄ Wissel vak
             </button>
-            <span className="text-slate-600">|</span>
-            <span className="text-slate-300 text-sm cursor-default select-none">{gebruiker?.naam}</span>
+            <span className="text-slate-500 text-sm cursor-default select-none">{gebruiker?.naam}</span>
             {gebruiker?.isAdmin && (
-              <button
-                onClick={() => navigate('/admin')}
-                className="text-sm hover:underline"
-                style={{ color: accentKleur }}
-              >
+              <button onClick={() => navigate('/admin')} className="text-xs font-semibold rounded-lg px-3 py-1.5 transition-all" style={{ backgroundColor: `${accent}20`, color: accent }}>
                 Admin
               </button>
             )}
-            <button
-              onClick={handleLogout}
-              className="text-sm text-slate-400 hover:text-white transition-colors"
-            >
+            <button onClick={() => { logout(); navigate('/') }} className="text-xs text-slate-500 hover:text-slate-300 transition-colors">
               Uitloggen
             </button>
           </div>
@@ -103,63 +68,55 @@ export default function DashboardPage() {
       </header>
 
       <main className="max-w-5xl mx-auto px-6 py-8">
-        {/* Vak badge */}
-        <div className="mb-4 inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest"
-          style={{ backgroundColor: `${accentKleur}20`, color: accentKleur }}>
-          {vak.toUpperCase()} — {isIOR3 ? 'International Entrepreneurship III' : 'Internationaal Ondernemen'}
-        </div>
-
-        {/* Voortgang samenvatting */}
-        <div className="bg-[#1e293b] rounded-2xl p-6 mb-8 flex items-center justify-between cursor-default select-none">
-          <div>
-            <h2 className="text-2xl font-bold text-white mb-1">Jouw voortgang</h2>
-            <p className="text-slate-400">{totaalVoltooid} van {totaalConcepten} concepten voltooid</p>
+        {/* Voortgang banner */}
+        <div className="glass rounded-3xl p-6 mb-8 flex items-center justify-between cursor-default select-none relative overflow-hidden fade-in">
+          <div className={`absolute inset-0 bg-gradient-to-r ${accentGradient} opacity-5`} />
+          <div className="relative">
+            <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: accent }}>Jouw voortgang</p>
+            <h2 className="text-2xl font-bold text-white">{totaalVoltooid} van {totaalConcepten} concepten voltooid</h2>
+            <div className="mt-3 w-64 bg-slate-800 rounded-full h-2">
+              <div className={`h-2 rounded-full bg-gradient-to-r ${accentGradient} transition-all`} style={{ width: `${totaalPct}%` }} />
+            </div>
           </div>
-          <div className="text-right">
-            <div className="text-4xl font-bold" style={{ color: accentKleur }}>{totaalPct}%</div>
-            <p className="text-slate-400 text-sm">totaal</p>
+          <div className="relative text-right">
+            <div className="text-5xl font-black tracking-tight" style={{ color: accent }}>{totaalPct}%</div>
+            <p className="text-slate-500 text-sm mt-1">totaal</p>
           </div>
         </div>
 
-        {/* Hoofdstuk kaarten */}
-        <h2 className="text-3xl font-bold text-white mb-6">Hoofdstukken</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Hoofdstukken */}
+        <h2 className="text-2xl font-bold text-white mb-5">Hoofdstukken</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {hoofdstukken.map((h, i) => {
             const { voltooid, totaal, gemScore } = berekenVoortgang(h)
             const pct = totaal > 0 ? Math.round((voltooid / totaal) * 100) : 0
-
             return (
               <button
                 key={h.id}
                 onClick={() => navigate(`/hoofdstuk/${h.id}`)}
-                className="bg-[#1e293b] rounded-2xl p-8 text-left transition-all group"
-                style={{ outline: 'none' }}
-                onMouseEnter={e => (e.currentTarget.style.boxShadow = `0 0 0 2px ${accentKleur}`)}
-                onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}
+                className="glass rounded-3xl p-7 text-left transition-all duration-300 hover:scale-[1.02] group relative overflow-hidden"
+                onMouseEnter={e => e.currentTarget.style.boxShadow = `0 0 40px ${accent}20, inset 0 0 0 1px ${accent}25`}
+                onMouseLeave={e => e.currentTarget.style.boxShadow = ''}
               >
-                <div className="flex items-center gap-4 mb-5">
-                  <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br ${KLEUREN[i]} text-3xl shrink-0`}>
+                <div className={`absolute top-0 right-0 w-40 h-40 rounded-full bg-gradient-to-br ${KLEUREN[i]} opacity-5 blur-3xl -translate-y-10 translate-x-10`} />
+
+                <div className="flex items-center gap-4 mb-4 relative">
+                  <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br ${KLEUREN[i]} text-2xl shrink-0 shadow-lg`}>
                     {ICONEN[i]}
                   </div>
-                  <p className="text-white text-2xl font-bold">
-                    Hoofdstuk {i + 1}
-                  </p>
+                  <p className="text-slate-300 text-xl font-bold">Hoofdstuk {i + 1}</p>
                 </div>
-                <h3 className="text-white font-bold text-xl mb-2 transition-colors group-hover:opacity-80">
-                  {h.titel}
-                </h3>
-                <p className="text-slate-400 text-sm leading-relaxed mb-6">{h.beschrijving}</p>
 
-                <div className="flex items-center justify-between text-xs text-slate-400 mb-3">
+                <h3 className="text-white font-bold text-lg mb-1.5 relative">{h.titel}</h3>
+                <p className="text-slate-500 text-sm leading-relaxed mb-5 relative">{h.beschrijving}</p>
+
+                <div className="flex items-center justify-between text-xs text-slate-500 mb-2">
                   <span>{voltooid}/{totaal} concepten</span>
-                  {voltooid > 0 && <span>gem. {gemScore}/10</span>}
-                  <span className="font-bold text-white text-sm">{pct}%</span>
+                  {voltooid > 0 && <span className="text-emerald-400 font-medium">gem. {gemScore}/10</span>}
+                  <span className="font-bold text-white">{pct}%</span>
                 </div>
-                <div className="w-full bg-slate-700 rounded-full h-3">
-                  <div
-                    className="h-3 rounded-full transition-all"
-                    style={{ width: `${pct}%`, backgroundColor: accentKleur }}
-                  />
+                <div className="w-full bg-slate-800 rounded-full h-2">
+                  <div className={`h-2 rounded-full bg-gradient-to-r ${KLEUREN[i]} transition-all`} style={{ width: `${pct}%` }} />
                 </div>
               </button>
             )

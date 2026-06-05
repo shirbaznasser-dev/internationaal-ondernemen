@@ -16,21 +16,20 @@ function BronLabel(_: { bron: BronIndicator | null }) {
 
 function LaadSkeleton({ label }: { label: string }) {
   return (
-    <div className="bg-[#1e293b] rounded-2xl p-6">
+    <div className="glass rounded-3xl p-6">
       <div className="flex flex-col items-center justify-center gap-4 py-6">
         <div className="relative w-12 h-12">
-          <div className="absolute inset-0 rounded-full border-2 border-slate-700" />
-          <div className="absolute inset-0 rounded-full border-2 border-[#3b82f6] border-t-transparent animate-spin" />
+          <div className="absolute inset-0 rounded-full border-2 border-slate-800" />
+          <div className="absolute inset-0 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
         </div>
-        <p className="text-slate-400 text-sm">{label}</p>
+        <p className="text-slate-500 text-sm">{label}</p>
       </div>
-      {/* Skeleton regels */}
-      <div className="space-y-3 mt-2">
-        <div className="h-3 bg-slate-700 rounded-full animate-pulse w-full" />
-        <div className="h-3 bg-slate-700 rounded-full animate-pulse w-5/6" />
-        <div className="h-3 bg-slate-700 rounded-full animate-pulse w-4/6" />
-        <div className="h-3 bg-slate-700 rounded-full animate-pulse w-full mt-4" />
-        <div className="h-3 bg-slate-700 rounded-full animate-pulse w-3/4" />
+      <div className="space-y-3">
+        <div className="h-2.5 skeleton rounded-full w-full" />
+        <div className="h-2.5 skeleton rounded-full w-5/6" />
+        <div className="h-2.5 skeleton rounded-full w-4/6" />
+        <div className="h-2.5 skeleton rounded-full w-full mt-2" />
+        <div className="h-2.5 skeleton rounded-full w-3/4" />
       </div>
     </div>
   )
@@ -181,9 +180,12 @@ export default function HoofdstukPage() {
     setFout('')
   }
 
+  const accent = vak === 'ior3' ? '#7c3aed' : '#3b82f6'
+  const accentGradient = vak === 'ior3' ? 'from-violet-500 to-purple-600' : 'from-blue-500 to-cyan-500'
+
   if (!hoofdstuk) {
     return (
-      <div className="min-h-screen bg-[#0f172a] flex items-center justify-center">
+      <div className="min-h-screen bg-mesh flex items-center justify-center">
         <p className="text-white">Hoofdstuk niet gevonden.</p>
       </div>
     )
@@ -193,61 +195,49 @@ export default function HoofdstukPage() {
     ((conceptIndex + (stap === 'feedback' ? 1 : 0)) / hoofdstuk.concepten.length) * 100
   )
 
-  const stapNummers: { key: Stap; label: string }[] = [
-    { key: 'uitleg', label: 'Uitleg' },
-    { key: 'vraag', label: 'Vraag' },
-    { key: 'feedback', label: 'Feedback' },
+  const stapNummers: { key: Stap; label: string; icoon: string }[] = [
+    { key: 'uitleg', label: 'Uitleg', icoon: '📖' },
+    { key: 'vraag', label: 'Vraag', icoon: '✏️' },
+    { key: 'feedback', label: 'Feedback', icoon: '🎯' },
   ]
 
   return (
-    <div className="min-h-screen bg-[#0f172a]">
+    <div className="min-h-screen bg-mesh">
       {/* Header */}
-      <header className="bg-[#1e293b] border-b border-slate-700">
-        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
+      <header className="glass-strong border-b border-white/5 sticky top-0 z-10">
+        <div className="max-w-3xl mx-auto px-6 py-3 flex items-center justify-between">
           <button
             onClick={() => navigate('/dashboard')}
-            className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm"
+            className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm border border-slate-700 hover:border-slate-500 rounded-lg px-3 py-1.5"
           >
             ← Dashboard
           </button>
           <div className="text-center">
-            <p className="text-white font-semibold">{hoofdstuk.titel}</p>
-            <p className="text-slate-400 text-xs">
-              Concept {conceptIndex + 1} van {hoofdstuk.concepten.length}
-            </p>
+            <p className="text-white font-semibold text-sm">{hoofdstuk.titel}</p>
+            <p className="text-slate-500 text-xs">Concept {conceptIndex + 1} van {hoofdstuk.concepten.length}</p>
           </div>
           <div className="text-right">
-            <span className="text-[#3b82f6] font-bold">{voortgangPct}%</span>
+            <span className="font-bold text-sm" style={{ color: accent }}>{voortgangPct}%</span>
           </div>
         </div>
-        <div className="w-full bg-slate-700 h-1">
-          <div
-            className="bg-[#3b82f6] h-1 transition-all duration-500"
-            style={{ width: `${voortgangPct}%` }}
-          />
+        <div className="w-full bg-slate-800 h-0.5">
+          <div className={`bg-gradient-to-r ${accentGradient} h-0.5 transition-all duration-500`} style={{ width: `${voortgangPct}%` }} />
         </div>
       </header>
 
       <main className="max-w-3xl mx-auto px-6 py-8">
-        {/* Stap-indicator + conceptnaam */}
-        <div className="mb-6">
-          <div className="flex items-center gap-3 mb-4">
+        {/* Stap-indicator */}
+        <div className="mb-6 fade-in">
+          <div className="flex items-center gap-2 mb-5">
             {stapNummers.map((s, i) => (
               <div key={s.key} className="flex items-center gap-2">
-                {i > 0 && <div className="w-8 h-px bg-slate-600" />}
-                <div
-                  className={`flex items-center gap-2 text-sm font-medium ${
-                    stap === s.key ? 'text-[#3b82f6]' : 'text-slate-500'
-                  }`}
-                >
-                  <div
-                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
-                      stap === s.key ? 'bg-[#3b82f6] text-white' : 'bg-slate-700 text-slate-400'
-                    }`}
-                  >
-                    {i + 1}
-                  </div>
-                  {s.label}
+                {i > 0 && <div className="w-6 h-px bg-slate-700" />}
+                <div className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full transition-all ${
+                  stap === s.key
+                    ? 'text-white'
+                    : 'text-slate-600 bg-slate-800/50'
+                }`} style={stap === s.key ? { backgroundColor: `${accent}25`, color: accent, border: `1px solid ${accent}40` } : {}}>
+                  <span>{s.icoon}</span> {s.label}
                 </div>
               </div>
             ))}
@@ -255,10 +245,7 @@ export default function HoofdstukPage() {
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold text-white">{huidigConcept?.naam}</h2>
             {stap === 'vraag' && (
-              <button
-                onClick={() => setStap('uitleg')}
-                className="text-sm text-slate-400 hover:text-white transition-colors flex items-center gap-1"
-              >
+              <button onClick={() => setStap('uitleg')} className="text-xs text-slate-500 hover:text-slate-300 transition-colors border border-slate-700 rounded-lg px-3 py-1.5">
                 ← Terug naar uitleg
               </button>
             )}
@@ -267,7 +254,7 @@ export default function HoofdstukPage() {
 
         {/* Foutmelding */}
         {fout && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl px-4 py-3 text-sm mb-4">
+          <div className="bg-red-500/10 border border-red-500/30 text-red-400 rounded-2xl px-4 py-3 text-sm mb-4">
             {fout}
           </div>
         )}
@@ -279,18 +266,16 @@ export default function HoofdstukPage() {
 
         {/* STAP 1: UITLEG */}
         {!laden && stap === 'uitleg' && uitleg && (
-          <div className="bg-[#1e293b] rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">📖</span>
-                <h3 className="text-white font-semibold">Uitleg</h3>
-              </div>
+          <div className="glass rounded-3xl p-6 fade-in">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-lg">📖</span>
+              <h3 className="text-white font-semibold">Uitleg</h3>
               <BronLabel bron={uitlegBron} />
             </div>
             <MarkdownContent>{uitleg}</MarkdownContent>
             <button
               onClick={naarVraag}
-              className="mt-6 bg-[#3b82f6] hover:bg-[#2563eb] text-white font-semibold rounded-xl px-6 py-3 transition-colors"
+              className={`mt-6 bg-gradient-to-r ${accentGradient} text-white font-semibold rounded-xl px-6 py-3 transition-all hover:opacity-90 shadow-lg`}
             >
               Ik snap het →
             </button>
@@ -299,12 +284,10 @@ export default function HoofdstukPage() {
 
         {/* STAP 2: VRAAG */}
         {!laden && stap === 'vraag' && vraag && (
-          <div className="bg-[#1e293b] rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">✏️</span>
-                <h3 className="text-white font-semibold">Examenvraag</h3>
-              </div>
+          <div className="glass rounded-3xl p-6 fade-in">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-lg">✏️</span>
+              <h3 className="text-white font-semibold">Examenvraag</h3>
               <BronLabel bron={vraagBron} />
             </div>
             <div className="mb-6">
@@ -315,14 +298,17 @@ export default function HoofdstukPage() {
               onChange={e => setAntwoord(e.target.value)}
               rows={6}
               placeholder="Typ hier je antwoord..."
-              className="w-full bg-[#0f172a] border border-slate-600 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-[#3b82f6] transition-colors resize-none text-sm"
+              className="w-full bg-slate-900/60 border border-slate-700 text-white rounded-xl px-4 py-3 focus:outline-none transition-all resize-none text-sm placeholder-slate-600"
+              style={{ ['--tw-ring-color' as string]: accent }}
+              onFocus={e => e.target.style.borderColor = accent}
+              onBlur={e => e.target.style.borderColor = ''}
             />
             <div className="flex items-center justify-between mt-4">
-              <span className="text-slate-500 text-xs">{antwoord.length} tekens</span>
+              <span className="text-slate-600 text-xs">{antwoord.length} tekens</span>
               <button
                 onClick={naarFeedback}
                 disabled={!antwoord.trim()}
-                className="bg-[#3b82f6] hover:bg-[#2563eb] disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold rounded-xl px-6 py-3 transition-colors"
+                className={`bg-gradient-to-r ${accentGradient} disabled:opacity-30 disabled:cursor-not-allowed text-white font-semibold rounded-xl px-6 py-3 transition-all hover:opacity-90 shadow-lg`}
               >
                 Indienen →
               </button>
@@ -332,7 +318,7 @@ export default function HoofdstukPage() {
 
         {/* STAP 3: FEEDBACK */}
         {!laden && stap === 'feedback' && feedback && (
-          <div className="bg-[#1e293b] rounded-2xl p-6">
+          <div className="glass rounded-3xl p-6 fade-in">
             <div className="flex items-center gap-2 mb-4">
               <span className="text-lg">🎯</span>
               <h3 className="text-white font-semibold">Feedback</h3>
@@ -344,18 +330,16 @@ export default function HoofdstukPage() {
             <div className="mt-6">
               <button
                 onClick={volgendConcept}
-                className="w-full bg-[#3b82f6] hover:bg-[#2563eb] text-white font-semibold rounded-xl py-3 transition-colors"
+                className={`w-full bg-gradient-to-r ${accentGradient} text-white font-semibold rounded-xl py-3.5 transition-all hover:opacity-90 shadow-lg`}
               >
-                {conceptIndex + 1 >= hoofdstuk.concepten.length
-                  ? '✓ Hoofdstuk voltooid!'
-                  : 'Volgend concept →'}
+                {conceptIndex + 1 >= hoofdstuk.concepten.length ? '✓ Hoofdstuk voltooid!' : 'Volgend concept →'}
               </button>
             </div>
           </div>
         )}
 
         {/* Concept-overzicht */}
-        <div className="mt-6 bg-[#1e293b] rounded-2xl p-4">
+        <div className="mt-5 glass rounded-2xl p-4">
           <p className="text-slate-400 text-xs mb-3">Alle concepten</p>
           <div className="flex flex-wrap gap-2">
             {hoofdstuk.concepten.map((c, i) => {
