@@ -89,17 +89,12 @@ export default function VakkeuzePage() {
               {/* Subtle bg glow */}
               <div className={`absolute top-0 right-0 w-48 h-48 rounded-full bg-gradient-to-br ${vak.gradient} opacity-5 blur-3xl -translate-y-12 translate-x-12`} />
 
-              <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br ${vak.gradient} text-3xl mb-5 shadow-lg`}>
-                {vak.icoon}
+              <div className="flex flex-col items-center text-center mb-6">
+                <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br ${vak.gradient} text-3xl mb-4 shadow-lg`}>
+                  {vak.icoon}
+                </div>
+                <h3 className="text-white font-bold text-2xl">{vak.code}</h3>
               </div>
-
-              <div className="mb-1.5">
-                <span className="text-xs font-bold uppercase tracking-widest" style={{ color: vak.accentKleur }}>
-                  {vak.code}
-                </span>
-              </div>
-              <h3 className="text-white font-bold text-xl mb-2">{vak.naam}</h3>
-              <p className="text-slate-400 text-sm leading-relaxed mb-6">{vak.beschrijving}</p>
 
               <div className="flex items-center justify-between text-xs text-slate-500 mb-2">
                 <span>{vak.voltooid}/{vak.totaal} concepten</span>
@@ -110,7 +105,7 @@ export default function VakkeuzePage() {
               </div>
 
               <div className="mt-5 text-sm font-semibold flex items-center gap-2 transition-all group-hover:gap-3" style={{ color: vak.accentKleur }}>
-                Starten met {vak.code} <span>→</span>
+                Starten <span>→</span>
               </div>
             </button>
           ))}
