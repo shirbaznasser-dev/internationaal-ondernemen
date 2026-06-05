@@ -82,7 +82,7 @@ export default function DashboardPage() {
               ← Wissel vak
             </button>
             <span className="text-slate-600">|</span>
-            <span className="text-slate-300 text-sm">{gebruiker?.naam}</span>
+            <span className="text-slate-300 text-sm cursor-default select-none">{gebruiker?.naam}</span>
             {gebruiker?.isAdmin && (
               <button
                 onClick={() => navigate('/admin')}
