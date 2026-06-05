@@ -1,8 +1,11 @@
+export type VakId = 'ior2' | 'ior3'
+
 export interface Gebruiker {
   email: string
   naam: string
   isAdmin: boolean
   voortgang: Record<string, ConceptVoortgang>
+  voortgangIOR3: Record<string, ConceptVoortgang>
 }
 
 export interface ConceptVoortgang {

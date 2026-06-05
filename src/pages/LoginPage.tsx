@@ -19,7 +19,7 @@ export default function LoginPage() {
       setFout('Ongeldig e-mailadres of wachtwoord.')
       return
     }
-    navigate(g.isAdmin ? '/admin' : '/dashboard')
+    navigate(g.isAdmin ? '/admin' : '/vakkeuze')
   }
 
   return (

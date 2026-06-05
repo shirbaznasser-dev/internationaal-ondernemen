@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { HOOFDSTUKKEN } from '../data/hoofdstukken'
+import { HOOFDSTUKKEN_IOR3 } from '../data/hoofdstukkenIOR3'
 import { haalUitleg, genereerVraag, evalueerAntwoord } from '../utils/claude'
 import type { BronIndicator } from '../utils/claude'
-import { getHuidigeGebruiker, updateVoortgang } from '../utils/auth'
+import { getHuidigeGebruiker, getHuidigVak, updateVoortgang } from '../utils/auth'
 import MarkdownContent from '../components/MarkdownContent'
 import type { Concept } from '../types'
 
@@ -87,7 +88,9 @@ function FeedbackTekst({ tekst }: { tekst: string }) {
 export default function HoofdstukPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const hoofdstuk = HOOFDSTUKKEN.find(h => h.id === id)
+  const vak = getHuidigVak()
+  const alleHoofdstukken = vak === 'ior3' ? HOOFDSTUKKEN_IOR3 : HOOFDSTUKKEN
+  const hoofdstuk = alleHoofdstukken.find(h => h.id === id)
 
   const [conceptIndex, setConceptIndex] = useState(0)
   const [stap, setStap] = useState<Stap>('uitleg')
@@ -109,7 +112,7 @@ export default function HoofdstukPage() {
     setUitleg('')
     setUitlegBron(null)
     try {
-      const { tekst, bron } = await haalUitleg(concept.naam, concept.modelantwoord)
+      const { tekst, bron } = await haalUitleg(concept.naam, vak, concept.modelantwoord)
       setUitleg(tekst)
       setUitlegBron(bron)
     } catch {
@@ -132,7 +135,7 @@ export default function HoofdstukPage() {
     setVraagBron(null)
     setAntwoord('')
     try {
-      const { tekst, bron } = await genereerVraag(huidigConcept.naam)
+      const { tekst, bron } = await genereerVraag(huidigConcept.naam, vak)
       setVraag(tekst)
       setVraagBron(bron)
     } catch {
@@ -149,11 +152,11 @@ export default function HoofdstukPage() {
     setFout('')
     setFeedback('')
     try {
-      const f = await evalueerAntwoord(huidigConcept.naam, vraag, antwoord)
+      const f = await evalueerAntwoord(huidigConcept.naam, vraag, antwoord, vak)
       setFeedback(f)
       const scoreMatch = f.match(/Score:\s*(\d+)\/10/i)
       const score = scoreMatch ? parseInt(scoreMatch[1]) : 5
-      updateVoortgang(huidigConcept.id, score)
+      updateVoortgang(huidigConcept.id, score, vak)
     } catch {
       setFout('Kon feedback niet ophalen.')
     } finally {
@@ -356,7 +359,8 @@ export default function HoofdstukPage() {
           <p className="text-slate-400 text-xs mb-3">Alle concepten</p>
           <div className="flex flex-wrap gap-2">
             {hoofdstuk.concepten.map((c, i) => {
-              const gedaan = gebruiker?.voortgang[c.id]?.voltooid
+              const voortgangBron = vak === 'ior3' ? gebruiker?.voortgangIOR3 : gebruiker?.voortgang
+              const gedaan = voortgangBron?.[c.id]?.voltooid
               return (
                 <div
                   key={c.id}

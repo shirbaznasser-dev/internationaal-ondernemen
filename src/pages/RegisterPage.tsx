@@ -24,7 +24,7 @@ export default function RegisterPage() {
       setFout('Dit e-mailadres is al geregistreerd.')
       return
     }
-    navigate('/dashboard')
+    navigate('/vakkeuze')
   }
 
   return (
